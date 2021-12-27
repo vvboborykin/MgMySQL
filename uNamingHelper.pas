@@ -16,21 +16,21 @@ uses
 type
   TNamingHelper = class
   strict private
+    FTablePrefix: string;
+    FReservedWords: TArray<string>;
     procedure AppendClassMembersToReservedWords(AClass: TClass; ARtti:
         TRttiContext);
-  private
-    FPrefix: string;
-    FReservedWords: TArray<string>;
-    procedure SetPrefix(const Value: string);
-  public
-    constructor Create(const APrefix: string; AExcludeMembersOf: array of TClass);
     procedure RegisterReservedWords(AExcludeMembersOf: array of TClass);
     function ReplaceInvalidCharacters(ATableName: string): string;
+    procedure SetTablePrefix(const Value: string);
+  private
+  public
+    constructor Create(const APrefix: string; AExcludeMembersOf: array of TClass);
     function TableNameToClassName(ATableName: string): string;
     function TableNameToInterfaceName(ATableName: string): string;
     function TableNameToObjectName(ATableName: string): string;
     //
-    property Prefix: string read FPrefix write SetPrefix;
+    property TablePrefix: string read FTablePrefix write SetTablePrefix;
   end;
 
 implementation
@@ -38,7 +38,7 @@ implementation
 constructor TNamingHelper.Create(const APrefix: string; AExcludeMembersOf: array of TClass);
 begin
   inherited Create;
-  FPrefix := APrefix;
+  FTablePrefix := APrefix;
   RegisterReservedWords(AExcludeMembersOf);
 end;
 
@@ -72,9 +72,9 @@ begin
   Result := TRegEx.Replace(ATableName, '[^\w|\d|\_]', '_');
 end;
 
-procedure TNamingHelper.SetPrefix(const Value: string);
+procedure TNamingHelper.SetTablePrefix(const Value: string);
 begin
-  FPrefix := Value;
+  FTablePrefix := Value;
 end;
 
 function TNamingHelper.TableNameToClassName(ATableName: string): string;
@@ -89,7 +89,7 @@ end;
 
 function TNamingHelper.TableNameToObjectName(ATableName: string): string;
 begin
-  Result := ReplaceInvalidCharacters(ATableName);
+  Result := FTablePrefix + ReplaceInvalidCharacters(ATableName);
 end;
 
 end.
