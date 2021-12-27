@@ -7,7 +7,8 @@ uses
   uGenerationTask in 'uGenerationTask.pas',
   uGeneratorData in 'uGeneratorData.pas' {GeneratorData: TDataModule},
   uGenerationParameters in 'uGenerationParameters.pas',
-  uMacroGenerator in 'uMacroGenerator.pas';
+  uMacroGenerator in 'uMacroGenerator.pas',
+  uNamingHelper in 'uNamingHelper.pas';
 
 {$R *.res}
 
