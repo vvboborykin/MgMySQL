@@ -11,7 +11,8 @@ unit uMacroGenerator;
 interface
 
 uses
-  System.SysUtils, System.Classes, System.IOUtils, uGeneratorData;
+  System.SysUtils, System.Classes, System.IOUtils, uGeneratorData, uNamingHelper,
+  Uni, Data.DB;
 
 type
   TMacroGenerator = class
@@ -19,16 +20,37 @@ type
     procedure ExpandClassDeclaration;
     procedure ExpandClassImplementations;
     procedure ExpandForwardDeclarations;
+    procedure ExpandTableForwardDeclaration(AStrings: TStrings);
     procedure ExpandUnitName;
+    procedure ExpandTablesMacros(ATableProc: TProc<TStrings>; AMacroName,
+      AOperationName: string);
     function GetResultUnitName: string;
-    function ReplaceMacro(AMacro, AText: string): String;
+    function ReplaceMacro(AMacro, AText: string): string;
+    procedure SayDone(AOperationName: string);
+    procedure SayStarted(AOperationName: string);
   private
     FData: TGeneratorData;
+    FNamingHelper: TNamingHelper;
   public
+    constructor Create;
+    destructor Destroy; override;
     procedure ExpandMacroses(AData: TGeneratorData);
   end;
 
 implementation
+
+constructor TMacroGenerator.Create;
+begin
+  inherited Create;
+  FNamingHelper := TNamingHelper.Create('', [TUniQuery, TUniConnection, TField,
+    TFieldDef]);
+end;
+
+destructor TMacroGenerator.Destroy;
+begin
+  FNamingHelper.Free;
+  inherited Destroy;
+end;
 
 procedure TMacroGenerator.ExpandClassDeclaration;
 begin
@@ -42,7 +64,8 @@ end;
 
 procedure TMacroGenerator.ExpandForwardDeclarations;
 begin
-  // TODO -cMM: TMacroGenerator.ExpandForwardDeclarations default body inserted
+  ExpandTablesMacros(ExpandTableForwardDeclaration,
+    '{ForwardDeclarations}', 'Generate forward declaration defenitions');
 end;
 
 procedure TMacroGenerator.ExpandMacroses(AData: TGeneratorData);
@@ -54,9 +77,37 @@ begin
   ExpandClassImplementations();
 end;
 
+procedure TMacroGenerator.ExpandTableForwardDeclaration(AStrings: TStrings);
+begin
+  // TODO -cMM: TMacroGenerator.ExpandTableForwardDeclaration default body inserted
+end;
+
 procedure TMacroGenerator.ExpandUnitName;
 begin
   ReplaceMacro('UnitName', GetResultUnitName);
+end;
+
+procedure TMacroGenerator.ExpandTablesMacros(ATableProc: TProc<TStrings>;
+  AMacroName, AOperationName: string);
+var
+  vMacroStrings: TStrings;
+begin
+  SayStarted(AOperationName);
+  vMacroStrings := TStringList.Create;
+  try
+    with FData.qryTables do
+    begin
+      while not Eof do
+      begin
+        ATableProc(vMacroStrings);
+        Next;
+      end;
+    end;
+    ReplaceMacro(AMacroName, vMacroStrings.Text);
+  finally
+    vMacroStrings.Free;
+  end;
+  SayDone(AOperationName);
 end;
 
 function TMacroGenerator.GetResultUnitName: string;
@@ -64,10 +115,20 @@ begin
   Result := TPath.GetFileNameWithoutExtension(FData.Params.ResultFileName);
 end;
 
-function TMacroGenerator.ReplaceMacro(AMacro, AText: string): String;
+function TMacroGenerator.ReplaceMacro(AMacro, AText: string): string;
 begin
-  Result := StringReplace(FData.ResultString, '{' + AMacro + '}', AText,
-    [rfReplaceAll, rfIgnoreCase]);
+  Result := StringReplace(FData.ResultString, '{' + AMacro + '}', AText, [rfReplaceAll,
+    rfIgnoreCase]);
+end;
+
+procedure TMacroGenerator.SayDone(AOperationName: string);
+begin
+  FData.Params.Indicator.ShowTextFmt('"%s" completed', [AOperationName])
+end;
+
+procedure TMacroGenerator.SayStarted(AOperationName: string);
+begin
+  FData.Params.Indicator.ShowTextFmt('"%s" started', [AOperationName])
 end;
 
 end.
