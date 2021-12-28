@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{4DA88A8E-227C-451C-B323-59AACCBE64DE}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="MgMySQL.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Test\MgMySQLTests.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="MgMySQL">
+        <MSBuild Projects="MgMySQL.dproj"/>
+    </Target>
+    <Target Name="MgMySQL:Clean">
+        <MSBuild Projects="MgMySQL.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MgMySQL:Make">
+        <MSBuild Projects="MgMySQL.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="MgMySQLTests">
+        <MSBuild Projects="Test\MgMySQLTests.dproj"/>
+    </Target>
+    <Target Name="MgMySQLTests:Clean">
+        <MSBuild Projects="Test\MgMySQLTests.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MgMySQLTests:Make">
+        <MSBuild Projects="Test\MgMySQLTests.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="MgMySQL;MgMySQLTests"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="MgMySQL:Clean;MgMySQLTests:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="MgMySQL:Make;MgMySQLTests:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

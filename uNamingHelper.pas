@@ -1,7 +1,7 @@
 {*******************************************************
 * Project: MgMySQL
 * Unit: uNamingHelper.pas
-* Description: Helper class for conversation database names to Delphi valid names
+* Description: Helper class for conversion database names to Delphi valid names
 *
 * Created: 27.12.2021 22:55:05
 * Copyright (C) 2021 Боборыкин В.В. (bpost@yandex.ru)
@@ -104,7 +104,7 @@ function TNamingHelper.ToNotReservedWord(AText: string): string;
 begin
   Result := AText;
   if IsReservedWord(AText) then
-    AText := AText + '_';
+    Result := AText + '_';
 end;
 
 procedure TNamingHelper.RegisterReservedWords(AExcludeMembersOf: array of TClass);
